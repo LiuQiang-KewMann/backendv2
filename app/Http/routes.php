@@ -61,19 +61,3 @@ Route::group([
         ]);
     });
 });
-
-
-Route::get('/export', function () {
-    $taskHistories = \App\Models\TaskHistory::all();
-
-    return view('export')->with([
-        'data' => $taskHistories
-    ]);
-});
-
-
-Route::get('/test', function () {
-    Mail::send('mail.reset-password', ['name' => 'HU Ze'], function ($message) {
-        $message->to('hu.ze@kewmann.com', 'HU Ze')->subject('Welcome!');
-    });
-});
