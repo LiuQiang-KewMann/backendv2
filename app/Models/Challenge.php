@@ -10,6 +10,10 @@ class Challenge extends BaseModel
     use DesignChallengeTrait;
     use RuntimeChallengeTrait;
 
+    const RESULT_PASS = 'pass';
+    const RESULT_FAIL = 'fail';
+    const RESULT_PENDING = 'pending';
+    
     public function detail($additionalAttributes = [])
     {
         $array = parent::detail();

@@ -1,0 +1,374 @@
+{
+  "apis": {
+    "auth.sso.login": {
+      "server": "AuthServer",
+      "method": "post",
+      "endpoint": "sso-login"
+    },
+    "auth.account.detail": {
+      "server": "AuthServer",
+      "method": "get",
+      "endpoint": "detail"
+    },
+    "auth.account.update": {
+      "server": "AuthServer",
+      "method": "post",
+      "endpoint": "update",
+      "body": [
+        "first_name",
+        "last_name"
+      ]
+    },
+    "auth.password.update": {
+      "server": "AuthServer",
+      "method": "post",
+      "endpoint": "update-password",
+      "body": [
+        "old_password",
+        "new_password"
+      ]
+    },
+    "auth.password.requestReset": {
+      "server": "AuthServer",
+      "method": "get",
+      "endpoint": "password/:email"
+    },
+    "auth.password.reset": {
+      "server": "AuthServer",
+      "method": "post",
+      "endpoint": "password",
+      "body": [
+        "token",
+        "password"
+      ]
+    },
+    "design.game.list": {
+      "method": "get",
+      "endpoint": "api/design/game/list"
+    },
+    "design.game.detail": {
+      "method": "get",
+      "endpoint": "api/design/game/detail/:gameId"
+    },
+    "design.game.sync": {
+      "method": "get",
+      "endpoint": "api/design/game/sync-design/:gameId"
+    },
+    "design.game.update": {
+      "method": "post",
+      "endpoint": "api/design/game/update/:gameId"
+    },
+    "design.challenge.list": {
+      "method": "get",
+      "endpoint": "api/design/challenge/list/:gameId"
+    },
+    "design.challenge.detail": {
+      "method": "get",
+      "endpoint": "api/design/challenge/detail/:challengeId"
+    },
+    "design.challenge.runtimeDetail": {
+      "method": "get",
+      "endpoint": "api/design/challenge/runtime-detail/:challengeId"
+    },
+    "design.challenge.create": {
+      "method": "post",
+      "endpoint": "api/design/challenge/create/:gameId"
+    },
+    "design.challenge.update": {
+      "method": "post",
+      "endpoint": "api/design/challenge/update/:challengeId"
+    },
+    "design.challenge.delete": {
+      "method": "post",
+      "endpoint": "api/design/challenge/delete/:challengeId"
+    },
+    "design.component.create": {
+      "method": "post",
+      "endpoint": "api/design/component/create/:challengeId"
+    },
+    "design.component.list": {
+      "method": "get",
+      "endpoint": "api/design/component/list/:challengeId"
+    },
+    "design.component.detail": {
+      "method": "get",
+      "endpoint": "api/design/component/detail/:componentId"
+    },
+    "design.component.delete": {
+      "method": "post",
+      "endpoint": "api/design/component/delete/:componentId"
+    },
+    "design.component.reorder": {
+      "method": "post",
+      "endpoint": "api/design/component/reorder"
+    },
+    "design.component.update": {
+      "method": "post",
+      "endpoint": "api/design/component/update/:componentId"
+    },
+    "design.component.config": {
+      "method": "post",
+      "endpoint": "api/design/component/config/:componentId"
+    },
+    "design.process.list": {
+      "method": "get",
+      "endpoint": "api/design/process/list/:gameId"
+    },
+    "design.process.syncList": {
+      "method": "get",
+      "endpoint": "api/design/process/sync-list/:gameId"
+    },
+    "design.process.sync": {
+      "method": "get",
+      "endpoint": "api/design/process/sync/:processId"
+    },
+    "design.process.detail": {
+      "method": "get",
+      "endpoint": "api/design/process/detail/:processId"
+    },
+    "design.process.update": {
+      "method": "post",
+      "endpoint": "api/design/process/update/:processId"
+    },
+    "design.task.list": {
+      "method": "get",
+      "endpoint": "api/design/task/list/:processId"
+    },
+    "design.task.detail": {
+      "method": "get",
+      "endpoint": "api/design/task/detail/:taskId"
+    },
+    "design.task.update": {
+      "method": "post",
+      "endpoint": "api/design/task/update/:taskId"
+    },
+    "design.reward.list": {
+      "method": "get",
+      "endpoint": "api/design/reward/list/:class/:id"
+    },
+    "design.reward.create": {
+      "method": "post",
+      "endpoint": "api/design/reward/create/:class/:id"
+    },
+    "design.reward.delete": {
+      "method": "post",
+      "endpoint": "api/design/reward/delete/:rewardId"
+    },
+    "design.reward.dispatchers": {
+      "method": "get",
+      "endpoint": "api/design/reward/dispatchers/:class"
+    },
+    "design.metric.list": {
+      "method": "get",
+      "endpoint": "api/design/metric/list/:gameId"
+    },
+    "design.metric.detail": {
+      "method": "get",
+      "endpoint": "api/design/metric/detail/:metricId"
+    },
+    "design.metric.syncList": {
+      "method": "get",
+      "endpoint": "api/design/metric/sync-list/:gameId"
+    },
+    "design.metric.sync": {
+      "method": "get",
+      "endpoint": "api/design/metric/sync/:metricId"
+    },
+    "design.metric.update": {
+      "method": "post",
+      "endpoint": "api/design/metric/update/:metricId"
+    },
+    "design.metricItem.list": {
+      "method": "get",
+      "endpoint": "api/design/metricItem/list/:metricId"
+    },
+    "design.metricItem.detail": {
+      "method": "get",
+      "endpoint": "api/design/metricItem/detail/:metricItemId"
+    },
+    "design.metricItem.update": {
+      "method": "post",
+      "endpoint": "api/design/metricItem/update/:metricItemId"
+    },
+    "design.action.list": {
+      "method": "get",
+      "endpoint": "api/design/action/list/:gameId"
+    },
+    "design.action.detail": {
+      "method": "get",
+      "endpoint": "api/design/action/detail/:actionId"
+    },
+    "design.action.syncList": {
+      "method": "get",
+      "endpoint": "api/design/action/sync-list/:gameId"
+    },
+    "design.action.sync": {
+      "method": "get",
+      "endpoint": "api/design/action/sync-design/:actionId"
+    },
+    "design.action.update": {
+      "method": "post",
+      "endpoint": "api/design/action/update/:actionId"
+    },
+    "design.file.list": {
+      "method": "get",
+      "endpoint": "api/design/file/list/:gameId/:folderType"
+    },
+    "design.file.upload": {
+      "method": "post",
+      "endpoint": "api/design/file/upload/:gameId/:folderType"
+    },
+    "design.file.delete": {
+      "method": "post",
+      "endpoint": "api/design/file/delete/:gameId"
+    },
+    "design.leaderboard.list": {
+      "method": "get",
+      "endpoint": "api/design/leaderboard/list/:gameId"
+    },
+    "design.leaderboard.detail": {
+      "method": "get",
+      "endpoint": "api/design/leaderboard/detail/:leaderboardId"
+    },
+    "design.leaderboard.syncList": {
+      "method": "get",
+      "endpoint": "api/design/leaderboard/sync-list/:gameId"
+    },
+    "design.leaderboard.sync": {
+      "method": "get",
+      "endpoint": "api/design/leaderboard/sync/:leaderboardId"
+    },
+    "design.leaderboard.update": {
+      "method": "post",
+      "endpoint": "api/design/leaderboard/update/:leaderboardId"
+    },
+    "admin.game.list": {
+      "method": "get",
+      "endpoint": "api/admin/game/list"
+    },
+    "admin.player.list": {
+      "method": "get",
+      "endpoint": "api/admin/player/list/:gameId"
+    },
+    "admin.player.detail": {
+      "method": "get",
+      "endpoint": "api/admin/player/detail/:gameUserId"
+    },
+    "admin.player.remove": {
+      "method": "post",
+      "endpoint": "api/admin/player/remove/:gameUserId"
+    },
+    "admin.player.invite": {
+      "method": "post",
+      "endpoint": "api/admin/player/invite/:gameId"
+    },
+    "admin.player.reset": {
+      "method": "post",
+      "endpoint": "api/admin/player/reset/:gameUserId"
+    },
+    "admin.team.list": {
+      "method": "get",
+      "endpoint": "api/admin/team/list/:gameId"
+    },
+    "admin.team.detail": {
+      "method": "get",
+      "endpoint": "api/admin/team/detail/:teamId"
+    },
+    "admin.team.syncList": {
+      "method": "get",
+      "endpoint": "api/admin/team/sync-list/:gameId"
+    },
+    "admin.team.create": {
+      "method": "post",
+      "endpoint": "api/admin/team/create/:gameId"
+    },
+    "admin.team.delete": {
+      "method": "post",
+      "endpoint": "api/admin/team/delete/:teamId"
+    },
+    "admin.teamRole.list": {
+      "method": "get",
+      "endpoint": "api/admin/teamRole/list/:teamId"
+    },
+    "admin.teamRole.detail": {
+      "method": "get",
+      "endpoint": "api/admin/teamRole/detail/:teamId/:role"
+    },
+    "admin.teamRole.addMember": {
+      "method": "post",
+      "endpoint": "api/admin/teamRole/add-member/:teamId/:role"
+    },
+    "admin.teamRole.removeMember": {
+      "method": "post",
+      "endpoint": "api/admin/teamRole/remove-member/:teamId/:role"
+    },
+    "runtime.game.list": {
+      "method": "get",
+      "endpoint": "api/client/game/list"
+    },
+    "runtime.game.detail": {
+      "method": "get",
+      "endpoint": "api/client/game/detail/:gameId"
+    },
+    "runtime.process.list": {
+      "method": "get",
+      "endpoint": "api/client/process/list/:gameId"
+    },
+    "runtime.taskHistory.list": {
+      "method": "get",
+      "endpoint": "api/client/taskHistory/list/:gameId/:processId"
+    },
+    "runtime.taskHistory.detail": {
+      "method": "get",
+      "endpoint": "api/client/taskHistory/detail/:taskHistoryId"
+    },
+    "runtime.taskHistory.play": {
+      "method": "post",
+      "endpoint": "api/client/taskHistory/play/:taskHistoryId"
+    },
+    "runtime.challenge.detail": {
+      "method": "get",
+      "endpoint": "api/client/challenge/detail/:challengeId"
+    },
+    "runtime.player.scores": {
+      "method": "get",
+      "endpoint": "api/client/player/scores/:gameId"
+    },
+    "runtime.player.profile": {
+      "method": "get",
+      "endpoint": "api/client/player/profile/:gameId"
+    },
+    "runtime.player.updateProfile": {
+      "method": "post",
+      "endpoint": "api/client/player/profile/:gameId"
+    },
+    "runtime.comment.likeList": {
+      "method": "get",
+      "endpoint": "api/client/comment/list/like/:taskHistoryId"
+    },
+    "runtime.comment.like": {
+      "method": "get",
+      "endpoint": "api/client/comment/like/:taskHistoryId"
+    },
+    "runtime.comment.unlike": {
+      "method": "get",
+      "endpoint": "api/client/comment/unlike/:taskHistoryId"
+    },
+    "runtime.comment.commentList": {
+      "method": "get",
+      "endpoint": "api/client/comment/list/comment/:taskHistoryId"
+    },
+    "runtime.comment.post": {
+      "method": "post",
+      "endpoint": "api/client/comment/post/:taskHistoryId"
+    },
+    "runtime.comment.delete": {
+      "method": "post",
+      "endpoint": "api/client/comment/delete/:commentId"
+    },
+    "runtime.activity.list": {
+      "method": "get",
+      "endpoint": "api/client/task/all-activities/:gameId/:taskId"
+    }
+  }
+}

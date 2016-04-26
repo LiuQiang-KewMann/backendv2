@@ -54,7 +54,7 @@ Route::group([
         Route::controllers([
             'game' => 'GameController',
             'process' => 'ProcessController',
-            'task' => 'TaskController',
+            'taskHistory' => 'TaskHistoryController',
             'challenge' => 'ChallengeController',
             'player' => 'PlayerController',
             'comment' => 'CommentController',

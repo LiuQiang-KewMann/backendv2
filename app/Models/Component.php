@@ -14,15 +14,14 @@ class Component extends BaseModel
     const OPERATOR_NLT = '>=';
     const OPERATOR_EQ = '=';
 
-
     public static function boot()
     {
         parent::boot();
 
         // listeners
-        self::deleting(function (self $component) {
+        Component::deleting(function (self $component) {
             // decrease sequence of items after
-            self::where('challenge_id', $component->challenge_id)
+            Component::where('challenge_id', $component->challenge_id)
                 ->where('sequence', '>', $component->sequence)
                 ->update(['sequence' => DB::raw('sequence - 1')]);
         });

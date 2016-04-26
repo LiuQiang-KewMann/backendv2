@@ -75,6 +75,11 @@ class ComponentController extends Controller
         $type = Request::get('type');
         $updateArray = Request::only(JsonSchema::names('component', 'config'));
 
+        // reset operator to be free
+        array_set($updateArray, 'operator', Component::OPERATOR_FREE);
+        // reset solution
+        array_set($updateArray, 'solution', null);
+
         $item->jsonUpdate($updateArray);
 
         return [

@@ -1,35 +1,45 @@
 <?php namespace App\Models;
 
+use App\Traits\DesignRewardTrait;
 use App\Traits\JsonTrait;
+use App\Traits\RuntimeRewardTrait;
 
 class Reward extends BaseModel
 {
     use JsonTrait;
+    use DesignRewardTrait;
+    use RuntimeRewardTrait;
 
-    public static $classMapping = [
-        'task' => Task::class,
-        'process' => Process::class,
-    ];
-
-    public static $classRequirements = [
-        'task' => [
-            'result' => ['pass', 'fail'],
-            'status' => ['released', 'viewed', 'completed', 'pending', 'expired'],
-        ]
-    ];
-
-
-    public static function getMappedClass($class)
+    public static function boot()
     {
-        return array_get(self::$classMapping, $class);
+        parent::boot();
+
+        Reward::creating(function (Reward $reward) {
+            // when creating reward, make sure the reward is compliance to Playlyfe Schema
+            $reward->formalizeReward();
+        });
+    }
+
+
+    public function detail($additionalAttributes = [])
+    {
+        $array = parent::detail($additionalAttributes);
+
+        $array = array_merge($array, [
+            'metric' => $this->metric,
+            'dispatcher' => $this->dispatcher
+        ]);
+
+        return $array;
     }
 
     public function toArray()
     {
         $array = parent::brief([
+            'db_id',
             'metric',
-            'verb',
-            'value'
+            'dispatcher',
+            'reward'
         ]);
         return $array;
     }
@@ -38,5 +48,12 @@ class Reward extends BaseModel
     public function metric()
     {
         return $this->belongsTo('App\Models\Metric');
+    }
+
+
+    public function dispatcher()
+    {
+        return $this->belongsTo('App\Models\RewardDispatcher', 'reward_dispatcher_id');
+
     }
 }

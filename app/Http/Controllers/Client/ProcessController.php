@@ -1,9 +1,6 @@
 <?php namespace App\Http\Controllers\Client;
 
-use JWTAuth;
-use Response;
-use Request;
-use App\Models\Game;
+use App\Models\GameUser;
 use App\Models\Process;
 use App\Http\Controllers\Controller;
 
@@ -11,24 +8,22 @@ class ProcessController extends Controller
 {
     public function getList($gameId)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        $game = Game::findOrNew($gameId);
+        $gameUser = GameUser::firstOrNew([
+            'game_id' => $gameId,
+            'user_id' => $this->user->id
+        ]);
 
-        $items = [];
-        foreach ($game->processes as $process) {
-            array_push($items, array_merge($process->detail(), [
-                'status' => $process->statusByGameAndUser($game, $user)
-            ]));
-        }
+        $items = $gameUser->game->processes->toJson();
+        $items = Process::fillinStatus(json_decode($items, true), $gameUser);
 
-        return Response::json(['items' => $items]);
+        return ['items' => $items];
     }
 
 
     public function getDetail($id)
     {
-        $item = Process::findOrNew($id)->detail();
-
-        return Response::json(['item' => $item]);
+        $item = Process::find($id);
+        
+        return ['item' => $item->detail()];
     }
 }

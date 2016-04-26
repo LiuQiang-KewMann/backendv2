@@ -70,22 +70,4 @@ class Metric extends BaseModel
     {
         return $this->hasMany('App\Models\MetricItem')->orderBy('remote_id');
     }
-
-
-    // this is to fill in local definition
-    public static function kgblize($gameId, &$metric)
-    {
-        $metricRemoteId = array_get($metric, 'id');
-
-        $metric = self::firstOrNew([
-            'game_id' => $gameId,
-            'remote_id' => $metricRemoteId
-        ]);
-
-        if ($metric->exists) {
-            $jsonArray = $metric->jsonArray();
-
-            array_set($metric, 'name');
-        }
-    }
 }

@@ -13,6 +13,10 @@ class Process extends BaseModel
     use DesignProcessTrait;
     use RuntimeProcessTrait;
     use AdminProcessTrait;
+    
+    const STATUS_ACTIVE = 'active';
+    const STATUS_LOCKED = 'locked';
+    const STATUS_HIDDEN = 'hidden';
 
     public function game()
     {
@@ -39,7 +43,8 @@ class Process extends BaseModel
             'remote_id',
             'image',
             'image_thumb',
-            'name'
+            'name',
+            'description'
         ]);
     }
 

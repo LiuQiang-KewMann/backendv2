@@ -2,6 +2,8 @@
 
 use App\Events\ProcessHistoryCreated;
 use App\Models\Game;
+use App\Models\GameUser;
+use App\Models\Process;
 use App\Models\ProcessHistory;
 use Event;
 use App\User;
@@ -9,32 +11,50 @@ use App\Models\Task;
 
 trait RuntimeProcessTrait
 {
-    public function statusByGameAndUser(Game $game, User $user)
+    public static function fillinStatus($processes, GameUser $gameUser)
     {
+        foreach ($processes as $key => $process) {
+            $status = self::getStatus($process['db_id'], $gameUser);
+
+            if ($status == self::STATUS_HIDDEN) {
+                array_forget($processes, $key);
+
+            } else {
+                array_set($processes, "$key.status", $status);
+            }
+        }
+
+        return $processes;
+    }
+
+    public static function getStatus($processId, GameUser $gameUser)
+    {
+        $process = Process::find($processId);
+
         // check flag - hidden
-        if ($this->jsonGet('hidden')) {
+        if ($process->jsonGet('hidden')) {
             return 'hidden';
         }
 
-        // check flag - unhide_if_task_complete
-        if ($taskFullcode = $this->jsonGet('unhide_if_task_complete')) {
-            $task = Task::firstOrNew(['fullcode' => $taskFullcode]);
-            $taskHistory = $task->historyByGameAndUser($game, $user);
-
-            if (!$taskHistory->exists || ($taskHistory->status != 'completed')) {
-                return 'hidden';
-            }
-        }
-
-        // check flag - unlock_if_task_complete
-        if ($taskFullcode = $this->jsonGet('unlock_if_task_complete')) {
-            $task = Task::firstOrNew(['fullcode' => $taskFullcode]);
-            $taskHistory = $task->historyByGameAndUser($game, $user);
-
-            if (!$taskHistory->exists || ($taskHistory->status != 'completed')) {
-                return 'locked';
-            }
-        }
+//        // check flag - unhide_if_task_complete
+//        if ($taskFullcode = $process->jsonGet('unhide_if_task_complete')) {
+//            $task = Task::firstOrNew(['fullcode' => $taskFullcode]);
+//            $taskHistory = $task->historyByGameAndUser($game, $user);
+//
+//            if (!$taskHistory->exists || ($taskHistory->status != 'completed')) {
+//                return 'hidden';
+//            }
+//        }
+//
+//        // check flag - unlock_if_task_complete
+//        if ($taskFullcode = $process->jsonGet('unlock_if_task_complete')) {
+//            $task = Task::firstOrNew(['fullcode' => $taskFullcode]);
+//            $taskHistory = $task->historyByGameAndUser($game, $user);
+//
+//            if (!$taskHistory->exists || ($taskHistory->status != 'completed')) {
+//                return 'locked';
+//            }
+//        }
 
         // if all flags are off, then process should be active
         return 'active';

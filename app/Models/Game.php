@@ -21,7 +21,8 @@ class Game extends BaseModel
             'db_id',
             'image',
             'image_thumb',
-            'title'
+            'title',
+            'description'
         ]);
     }
 

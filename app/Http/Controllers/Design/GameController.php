@@ -29,11 +29,11 @@ class GameController extends Controller
     {
         $item = Game::find($id);
 
-        return Response::json([
+        return [
             'item' => $item->detail(),
             'schema_edit' => JsonSchema::items('game', 'edit'),
             'schema_config' => JsonSchema::items('game', 'config')
-        ]);
+        ];
     }
 
 
@@ -41,16 +41,24 @@ class GameController extends Controller
     {
         $updateArray = Request::only(JsonSchema::names('game', 'edit'));
 
-        Game::find($id)->jsonUpdate($updateArray);
+        $item = Game::find($id);
+        $item->jsonUpdate($updateArray);
 
-        return $this->getDetail($id);
+        return [
+            'item' => $item->detail(),
+            'msg' => 'game_updated'
+        ];
     }
 
 
     public function getSyncDesign($id)
     {
-        Game::find($id)->syncDesign();
+        $item = Game::find($id);
+        $item->syncDesign();
 
-        return $this->getDetail($id);
+        return [
+            'item' => $item->detail(),
+            'msg' => 'game_synced'
+        ];
     }
 }
