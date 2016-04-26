@@ -212,7 +212,7 @@
     },
     "design.file.list": {
       "method": "get",
-      "endpoint": "api/design/file/list/:gameId/:folderType"
+      "endpoint": "api/design/file/list/:gameId/:folderType/:fileType"
     },
     "design.file.upload": {
       "method": "post",

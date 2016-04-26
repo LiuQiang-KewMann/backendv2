@@ -3,7 +3,6 @@
 use App\Http\Controllers\Controller;
 use App\Models\FileManager;
 use App\Models\Game;
-use League\Flysystem\FileNotFoundException;
 use Request;
 use Storage;
 use Response;
@@ -16,9 +15,12 @@ class FileController extends Controller
         FileManager::FOLDER_USER,
     ];
 
-    protected $imageExtensions = ['png', 'jpg'];
+    protected $fileTypeExtensions = [
+        'image' => ['png', 'jpg'],
+        'audio' => ['mp3']
+    ];
 
-    public function getList($gameId, $folderType)
+    public function getList($gameId, $folderType, $fileType)
     {
         // folderType passed in must be one of the predefined folder types
         if (!in_array($folderType, $this->folderTypeArray)) {
@@ -28,15 +30,33 @@ class FileController extends Controller
         $game = Game::find($gameId);
         $files = Storage::files($game->jsonGet('code') . '/' . $folderType);
 
+
+        $allowedFileTypes = array_keys($this->fileTypeExtensions);
+        if (!in_array($fileType, $allowedFileTypes)) {
+            return ['items' => []];
+
+        }
+
+        $fileExtensions = array_get($this->fileTypeExtensions, $fileType, []);
+        foreach ($files as $key => $file) {
+            $pathInfo = pathInfo($file);
+            // filter out those not in the extension list
+            if (!in_array($pathInfo['extension'], $fileExtensions)) {
+                array_forget($files, $key);
+            }
+        }
+
         // differentiate normal file and thumb
         $filesNotThumb = [];
         $filesThumb = [];
         foreach ($files as $file) {
             if (str_contains($file, '_thumb')) {
+                // thumb file
                 $pathInfo = pathInfo($file);
                 array_set($filesThumb, str_replace('_thumb', '', $pathInfo['filename']), $file);
 
             } else {
+                // not thumb file
                 array_push($filesNotThumb, $file);
             }
         }
@@ -52,9 +72,7 @@ class FileController extends Controller
             ]);
         }
 
-        return Response::json([
-            'items' => $items
-        ]);
+        return ['items' => $items];
     }
 
 
@@ -77,7 +95,8 @@ class FileController extends Controller
 
         // make thumb if file uploaded is image
         $extension = $file->getClientOriginalExtension();
-        if (in_array(strtolower($extension), $this->imageExtensions)) {
+        $imageExtensions = array_get($this->fileTypeExtensions, 'image', []);
+        if (in_array(strtolower($extension), $imageExtensions)) {
             $thumb = FileManager::putThumb($file, $path);
             array_set($item, 'thumb', $thumb);
         }

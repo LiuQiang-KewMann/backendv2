@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Design;
 
+use App\Models\FileManager;
 use Request;
 use Response;
 use App\Models\Challenge;
@@ -59,6 +60,19 @@ class ComponentController extends Controller
         $item = Component::find($id);
         $type = $item->jsonGet('type');
         $updateArray = Request::only(JsonSchema::names('component', "edit_$type"));
+
+        // if file attached
+        if (Request::hasFile('file')) {
+            // 1. delete existing file first
+            $existingFilePath = $item->jsonGet('file');
+            FileManager::delete($existingFilePath);
+
+            // 2. upload new one
+            $file = Request::file('file');
+            $path = FileManager::put($item->challenge->game->jsonGet('code'), FileManager::FOLDER_LIB, $file);
+
+            array_set($updateArray, 'file', $path);
+        }
 
         $item->jsonUpdate($updateArray);
 

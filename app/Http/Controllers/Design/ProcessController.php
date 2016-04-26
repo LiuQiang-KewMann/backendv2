@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Design;
 
 use App\Models\JsonSchema;
+use App\Models\Task;
 use Response;
 use Request;
 use App\Models\Game;
@@ -58,9 +59,23 @@ class ProcessController extends Controller
 
     public function postUpdate($id)
     {
-        $updateArray = Request::only(JsonSchema::names('process', 'edit'));
+        // make sure unhide_if_task_complete & unlock_if_task_complete is properly entered, by remote_id
+        $unhideIfTaskComplete = Request::get('unhide_if_task_complete');
+        if ($unhideIfTaskComplete) {
+            if (!Task::where('remote_id', $unhideIfTaskComplete)->exists()) {
+                return Response::json(['msg' => 'unhide_if_task_complete_set_wrongly'], 406);
+            }
+        }        
+
+        $unlockIfTaskComplete = Request::get('unlock_if_task_complete');
+        if ($unlockIfTaskComplete) {
+            if (!Task::where('remote_id', $unlockIfTaskComplete)->exists()) {
+                return Response::json(['msg' => 'unlock_if_task_complete_set_wrongly'], 406);
+            }
+        }
 
         $item = Process::find($id);
+        $updateArray = Request::only(JsonSchema::names('process', 'edit'));
         $item->jsonUpdate($updateArray);
 
         return [

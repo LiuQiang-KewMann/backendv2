@@ -90,6 +90,7 @@ class FileManager
         return array_get([
             'image/png' => 'png',
             'image/jpeg' => 'jpg',
+            'audio/mpeg' => 'mp3'
         ], $mimeType);
     }
 }

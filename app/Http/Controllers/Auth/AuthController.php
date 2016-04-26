@@ -43,7 +43,7 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return Response::json(compact('token'));
+        return compact('token');
     }
 
 
@@ -98,7 +98,7 @@ class AuthController extends Controller
             'json_remote' => json_encode($userProfile)
         ]);
 
-        return Response::json(['token' => JWTAuth::fromUser($user)]);
+        return ['token' => JWTAuth::fromUser($user)];
     }
 
 
@@ -118,7 +118,7 @@ class AuthController extends Controller
                     'password' => Hash::make($password),
                     'sso' => 0,
                     'status' => User::STATUS_ACTIVE,
-                    'json_local' => json_encode([
+                    'json' => json_encode([
                         'first_name' => $firstName,
                         'last_name' => $lastName,
                     ]),
@@ -134,37 +134,30 @@ class AuthController extends Controller
                 'password' => Hash::make($password),
                 'sso' => 0,
                 'status' => User::STATUS_ACTIVE,
-                'json_local' => json_encode([
+                'json' => json_encode([
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                 ]),
             ]);
         }
 
-        return Response::json(['token' => JWTAuth::fromUser($user)]);
+        return ['token' => JWTAuth::fromUser($user)];
     }
 
 
     public function getDetail()
     {
-        $user = JWTAuth::parseToken()->toUser();
-
-        return Response::json([
-            'item' => $user->detail(false)
-        ]);
+        return ['item' => $this->user->detail()];
     }
 
 
     public function postUpdate()
     {
-        $user = JWTAuth::parseToken()->toUser();
-
         $inputArray = Request::only(['first_name', 'last_name']);
-        $user->jsonUpdate($inputArray);
 
-        return Response::json([
-            'item' => $user->fresh()->detail(false)
-        ]);
+        $this->user->jsonUpdate($inputArray);
+
+        return ['item' => $this->user->detail()];
     }
 
 
@@ -193,17 +186,10 @@ class AuthController extends Controller
 
         $user->update(['password' => $userNewHashedPassword]);
 
-        return Response::json([
+        return [
             'item' => $user->fresh()->detail(false),
             'msg' => 'password_updated'
-        ]);
-    }
-
-
-    public function getInfo()
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-        return Response::json($user->getAttributesOnly(['name']));
+        ];
     }
 
 
@@ -227,7 +213,7 @@ class AuthController extends Controller
             // Planned: use queue for this event
             Event::fire(new PasswordResetTokenCreated($passwordReset));
 
-            return Response::json(['msg' => 'reset_email_sent']);
+            return ['msg' => 'reset_email_sent'];
 
         } else {
 
@@ -257,10 +243,10 @@ class AuthController extends Controller
             PasswordReset::where('token', $token)->delete();
 
 
-            return Response::json([
+            return [
                 'token' => JWTAuth::fromUser($user),
                 'msg' => 'password_reset'
-            ]);
+            ];
 
         } else {
             // passwordReset does not not exist
