@@ -35,7 +35,8 @@ class Game extends BaseModel
             'image',
             'image_thumb',
             'title',
-            'description'
+            'description',
+            'header_color'
         ]);
     }
 
