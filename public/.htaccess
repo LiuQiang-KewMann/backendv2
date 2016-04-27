@@ -17,5 +17,4 @@ RewriteRule ^ index.php [L]
 RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
-# Allow cross origin request
 Header set Access-Control-Allow-Origin "*"
