@@ -16,5 +16,3 @@ RewriteRule ^ index.php [L]
 # Do not remove Authorization from header
 RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
-
-Header set Access-Control-Allow-Origin "*"
