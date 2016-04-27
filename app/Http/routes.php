@@ -5,7 +5,6 @@ Route::get('/', function () {
     return "KGB Engine App - Please use HTTP to call APIs...";
 });
 
-
 // KGB Game-Engine is the backend of KGB
 // Auth
 Route::group(['namespace' => 'Auth'], function () {
