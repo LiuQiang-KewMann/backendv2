@@ -14,6 +14,19 @@ class Game extends BaseModel
     use RuntimeGameTrait;
     use AdminGameTrait;
 
+    public function detail($additionalAttributes = [])
+    {
+        $array = parent::detail();
+
+        $array = array_merge([
+            'image' => env('KGB_DEFAULT_IMAGE_GAME'),
+            'image_thumb' => env('KGB_DEFAULT_IMAGE_GAME')
+        ], $array);
+
+        return $array;
+    }
+
+
     public function toArray()
     {
         return parent::brief([
