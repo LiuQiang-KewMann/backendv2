@@ -18,3 +18,5 @@ RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
 Header set Access-Control-Allow-Origin "*"
+
+Header set Access-Control-Allow-Origin "*"
