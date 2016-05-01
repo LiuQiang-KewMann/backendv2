@@ -1,21 +1,24 @@
 <?php namespace App\Models;
 
 use App\Traits\PlaylyfeTrait;
+use App\Traits\RuntimeRewardTrait;
 use App\Traits\RuntimeTaskHistoryTrait;
 use App\Traits\JsonTrait;
-use App\Traits\ProcessTrait;
 
 class TaskHistory extends BaseModel
 {
     use JsonTrait;
     use PlaylyfeTrait;
     use RuntimeTaskHistoryTrait;
+    use RuntimeRewardTrait;
 
     public $timestamps = true;
 
     const STATUS_NON_LOOPING = 'non_looping';
     const STATUS_LOOPING = 'looping';
     const STATUS_COMPLETED = 'completed';
+    const STATUS_EXPIRED = 'expired';
+    const STATUS_UNRELEASED = 'unreleased';
 
     public static function boot()
     {
@@ -31,12 +34,20 @@ class TaskHistory extends BaseModel
             $taskHistory->user_id = $taskHistory->gameUser->user_id;
         });
 
-        TaskHistory::saved(function (TaskHistory $taskHistory) {
+        TaskHistory::saving(function (TaskHistory $taskHistory) {
+            // get all changed attributes
             $updatedAttributes = array_keys($taskHistory->getDirty());
-            
-            // do remote completion
-            if (in_array('status', $updatedAttributes) && $taskHistory->status == TaskHistory::STATUS_COMPLETED) {
-                $taskHistory->doRemoteCompletion();
+
+            if (in_array('status', $updatedAttributes)) {
+                // if status changed
+                if (in_array($taskHistory->status, [TaskHistory::STATUS_COMPLETED, TaskHistory::STATUS_EXPIRED])) {
+                    // if status changed to completed or expired
+                    // do remote completion
+                    $taskHistory->doRemoteCompletion();
+
+                    // and give out rewards
+                    $taskHistory->giveOutRewards();
+                }
             }
         });
     }
@@ -97,72 +108,11 @@ class TaskHistory extends BaseModel
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//    public function submissions($attempt = null, $unmarkedOnly = false)
-//    {
-//        $query = Submission::where([
-//            'task_history_id' => $this->id,
-//            'attempt' => $attempt ?: $this->maxAttempt,
-//        ]);
-//
-//        return $unmarkedOnly ?
-//            $query->whereNull('result')->get() :
-//            $query->get();
-//    }
-//
-//    public function lastSubmission($attempt = null)
-//    {
-//        return Submission::where([
-//            'task_history_id' => $this->id,
-//            'attempt' => $attempt ?: $this->maxAttempt,
-//        ])->orderBy('updated_at', 'DESC')->first();
-//    }
-//
-//
-//
-//    public function getRuntimeStatusAttribute()
-//    {
-//        $status = $this->status;
-//        $maxAttempt = $this->maxAttempt;
-//
-//        // if current taskHistory is still in looping
-//        if ($status == Task::STATUS_LOOPING) {
-//            $timeBound = $this->task->jsonGet('time_bound');
-//            $countBound = $this->task->jsonGet('count_bound');
-//
-//            $countBoundReached = $countBound ? ($maxAttempt >= $countBound) : false;
-//            $timeBoundReached = false;
-//
-//            if ($timeBound) {
-//                try {
-//                    $deadline = Carbon::createFromFormat('Y-m-d H:i:s', $timeBound);
-//                    $diffInSeconds = $deadline->diffInSeconds(null, false);
-//
-//                    // if diffInSeconds >= 0, which means timeBound reached
-//                    $timeBoundReached = ($diffInSeconds >= 0);
-//
-//                } catch (Exception $e) {
-//                    // do nothing...
-//                }
-//            }
-//
-//            if ($countBoundReached || $timeBoundReached) {
-//                return Task::STATUS_COMPLETED;
-//            }
-//        }
-//
-//        // else return db status
-//        return $status;
-//    }
+    public function getRewardsAttribute()
+    {
+        return Reward::where([
+            'belongs_to_class' => Task::class,
+            'belongs_to_id' => $this->task->id
+        ])->orderBy('reward_dispatcher_id')->get();
+    }
 }

@@ -4,14 +4,12 @@ use App\Traits\PlaylyfeTrait;
 use App\Traits\RewardTrait;
 use App\Traits\RuntimeTaskTrait;
 use App\Traits\JsonTrait;
-use App\User;
 
 class Task extends BaseModel
 {
     use JsonTrait;
     use PlaylyfeTrait;
     use RuntimeTaskTrait;
-    use RewardTrait;
 
 
     public function detail($additionalAttributes = [])
@@ -65,5 +63,13 @@ class Task extends BaseModel
             'game_id' => $this->process->game_id,
             'number' => $this->challenge_number ?: 0
         ]);
+    }
+
+    public function getRewardsAttribute()
+    {
+        return Reward::where([
+            'belongs_to_class' => self::class,
+            'belongs_to_id' => $this->id
+        ])->orderBy('reward_dispatcher_id')->get();
     }
 }

@@ -1,12 +1,12 @@
 <?php namespace App\Traits;
 
-/*
- * Please be noted that team in KGB is team instance in Playlyfe
- */
 use App\Models\GameUserTeamRole;
 use App\Models\JsonSchema;
 use App\Models\Team;
 
+/*
+ * Please be noted that team in KGB is team instance in Playlyfe
+ */
 trait AdminTeamTrait
 {
     public function createRemoteInstance()

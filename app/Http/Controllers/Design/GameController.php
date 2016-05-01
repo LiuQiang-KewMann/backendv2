@@ -3,7 +3,6 @@
 use App\Models\Game;
 use App\Models\JsonSchema;
 use App\Models\GameUser;
-use App\User;
 use Response;
 use Request;
 use DB;
@@ -15,7 +14,7 @@ class GameController extends Controller
     {
         $gameUsers = GameUser::where([
             'user_id' => $this->user->id,
-            'role' => User::ROLE_DESIGNER
+            'role' => GameUser::ROLE_DESIGNER
         ])->get()->toArray();
         $gameIds = array_column($gameUsers, 'game_id');
 

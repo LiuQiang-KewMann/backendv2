@@ -13,10 +13,10 @@ class ProcessController extends Controller
             'user_id' => $this->user->id
         ]);
 
-        $items = $gameUser->game->processes->toJson();
-        $items = Process::fillinStatus(json_decode($items, true), $gameUser);
+        $processesArray = $gameUser->game->processes->toArray();
+        Process::updateRuntimeStatus($processesArray, $gameUser);
 
-        return ['items' => $items];
+        return ['items' => $processesArray];
     }
 
 

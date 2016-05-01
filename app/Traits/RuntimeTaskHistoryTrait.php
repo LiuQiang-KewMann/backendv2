@@ -3,11 +3,10 @@
 use App\Models\Challenge;
 use App\Models\Component;
 use App\Models\FileManager;
-use App\Models\GameUser;
-use App\Models\Reward;
 use App\Models\Submission;
 use App\Models\Task;
 use App\Models\TaskHistory;
+use Carbon\Carbon;
 use Request;
 
 trait RuntimeTaskHistoryTrait
@@ -40,6 +39,7 @@ trait RuntimeTaskHistoryTrait
         $totalScore = Submission::where('task_history_id', $this->id)
             ->where('operator', '<>', Component::OPERATOR_FREE)
             ->where('result', 1)
+            ->where('loop_count', $this->loop_count)
             ->where('attempt', $this->attempt)
             ->count();
         $passScore = $this->task->challenge->jsonGet('pass_score', 0);
@@ -80,19 +80,33 @@ trait RuntimeTaskHistoryTrait
         // check isBlocking
         $isBlocking = $this->task->jsonGet('is_blocking', false);
 
-        if ($isBlocking && ($this->result != Challenge::RESULT_PASS)) {
-            // blocking and result is NOT PASS, continue in current loop
-            // only increase attempt
-            $this->attempt++;
+        if ($isBlocking) {
+            // blocking: check the result
+            if ($this->result == Challenge::RESULT_PASS) {
+                // result pass
+                if ($this->loop_count >= $maxLoopCount) {
+                    // if reach maxLoopCount: end the looping
+                    $this->status = TaskHistory::STATUS_COMPLETED;
+
+                } else {
+                    // if not reach maxLoopCount: go to next loop
+                    $this->loop_count++;
+                    $this->attempt = 1;
+                }
+
+            } else {
+                // result NOT pass, continue in current loop
+                $this->attempt++;
+            }
 
         } else {
-            // non-blocking
+            // non-blocking: do not check the result
             if ($this->loop_count >= $maxLoopCount) {
-                // end the looping
+                // if reach maxLoopCount: end the looping
                 $this->status = TaskHistory::STATUS_COMPLETED;
 
             } else {
-                // go to next loop
+                // if not reach maxLoopCount: go to next loop
                 $this->loop_count++;
                 $this->attempt = 1;
             }
@@ -161,55 +175,26 @@ trait RuntimeTaskHistoryTrait
 
 
     /*
-     * give out rewards
-     *
+     * to be called in taskHistory.detail() so that the
      */
-    public function giveOutRewards()
+    public function checkExpiration()
     {
-        $definedRewards = Reward::where([
-            'belongs_to_class' => Task::class,
-            'belongs_to_id' => $this->task->id
-        ])->get();
+        // check expiration only if status is not completed
+        if ($this->status == self::STATUS_COMPLETED) return;
 
+        // if task got expiration json attribute
+        if ($expiration = $this->task->jsonGet('expiration')) {
+            try {
+                $expiration = Carbon::createFromFormat('Y-m-d H:i:s', $expiration);
+                $diffInSeconds = $expiration->diffInSeconds(null, false);
 
-        $receiverRewards = [];
-        foreach ($definedRewards as $reward) {
-            $dispatcher = $reward->dispatcher;
-
-            $expression = $dispatcher->jsonGet('condition');
-            $expression = '$result' . " = ($expression);";
-            $result = false;
-            eval($expression);
-
-            $expression = $dispatcher->jsonGet('receiver');
-            $expression = '$receiver' . " = ($expression);";
-            $receiver = null;
-            eval($expression);
-
-            if ($result) {
-                if (!array_has($receiverRewards, $receiver->id)) {
-                    array_set($receiverRewards, $receiver->id, []);
+                if ($diffInSeconds >= 0) {
+                    $this->update(['status' => TaskHistory::STATUS_EXPIRED]);
                 }
 
-                array_push($receiverRewards[$receiver->id], $reward->jsonGet('reward'));
-            };
-        }
-
-        foreach ($receiverRewards as $receiverId => $rewards) {
-            $gameUser = GameUser::firstOrNew([
-                'game_id' => $this->game->id,
-                'user_id' => $receiverId
-            ]);
-
-            if ($gameUser->exists) {
-                $res = $this->conn()->patch('/admin/players/' . $gameUser->user->playerId . '/scores', [], [
-                    'rewards' => $rewards
-                ]);
-
-                $gameUser->jsonUpdate($res);
+            } catch (\InvalidArgumentException $e) {
+                // do nothing ...
             }
         }
-        
-        return $receiverRewards;
     }
 }

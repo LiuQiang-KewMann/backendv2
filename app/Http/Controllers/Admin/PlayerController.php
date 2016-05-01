@@ -9,7 +9,6 @@ use JWTAuth;
 use Response;
 use Request;
 use App\User;
-use App\Models\Game;
 use App\Http\Controllers\Controller;
 
 class PlayerController extends Controller
@@ -18,7 +17,7 @@ class PlayerController extends Controller
     {
         $items = GameUser::where([
             'game_id' => $gameId,
-            'role' => User::ROLE_PLAYER
+            'role' => GameUser::ROLE_PLAYER
         ])->get();
 
         return ['items' => $items];
@@ -69,7 +68,7 @@ class PlayerController extends Controller
         $gameUserQuery = GameUser::where([
             'game_id' => $gameId,
             'user_id' => $user->id,
-            'role' => User::ROLE_PLAYER
+            'role' => GameUser::ROLE_PLAYER
         ]);
 
         if ($gameUserQuery->exists()) {
@@ -79,7 +78,7 @@ class PlayerController extends Controller
             $gameUser = GameUser::create([
                 'game_id' => $gameId,
                 'user_id' => $user->id,
-                'role' => User::ROLE_PLAYER
+                'role' => GameUser::ROLE_PLAYER
             ]);
 
             return Response::json([

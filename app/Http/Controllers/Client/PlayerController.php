@@ -2,7 +2,6 @@
 
 use App\Models\FileManager;
 use App\Models\GameUser;
-use App\User;
 use JWTAuth;
 use Response;
 use Request;
@@ -13,15 +12,25 @@ class PlayerController extends Controller
 {
     public function getProfile($gameId)
     {
-        $user = JWTAuth::parseToken()->toUser();
-
         $gameUser = GameUser::firstOrNew([
             'game_id' => $gameId,
-            'user_id' => $user->id,
-            'role' => User::ROLE_PLAYER
+            'user_id' => $this->user->id,
+            'role' => GameUser::ROLE_PLAYER
         ]);
 
-        return Response::json($gameUser->detail());
+        return ['item' => $gameUser->profile];
+    }
+    
+    
+    public function getScores($gameId)
+    {
+        $gameUser = GameUser::firstOrNew([
+            'game_id' => $gameId,
+            'user_id' => $this->user->id,
+            'role' => GameUser::ROLE_PLAYER
+        ]);
+
+        return ['items' => $gameUser->scores];
     }
 
 
@@ -34,11 +43,11 @@ class PlayerController extends Controller
         $gameUser = GameUser::firstOrNew([
             'game_id' => $gameId,
             'user_id' => $user->id,
-            'role' => User::ROLE_PLAYER
+            'role' => GameUser::ROLE_PLAYER
         ]);
 
         // player uploaded image
-        if(Request::hasFile('fileImage')) {
+        if (Request::hasFile('fileImage')) {
             $file = Request::file('fileImage');
 
             // 1. image ......................................................................

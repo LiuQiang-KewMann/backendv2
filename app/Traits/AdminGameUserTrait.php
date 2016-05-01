@@ -23,7 +23,7 @@ trait AdminGameUserTrait
     public function removePlayerInEngine()
     {
         try {
-            $this->conn()->delete('/admin/players/' . $player->playerId, []);
+            $this->conn()->delete('/admin/players/' . $this->user->playerId, []);
 
         } catch (PlaylyfeException $e) {
             // do nothing...
@@ -34,7 +34,7 @@ trait AdminGameUserTrait
     public function resetPlayerInEngine()
     {
         try {
-            $this->conn()->post('/admin/players/' . $player->playerId . '/reset', []);
+            $this->conn()->post('/admin/players/' . $this->user->playerId . '/reset', []);
 
         } catch (PlaylyfeException $e) {
             // do nothing...

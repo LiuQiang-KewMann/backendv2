@@ -12,9 +12,6 @@ class Comment extends BaseModel
     const TYPE_LIKE = 'like';
     const TYPE_COMMENT = 'comment';
 
-    protected $guarded = ['id'];
-
-
     public function outline($toBeMerged = [], $arrayOnly = [])
     {
         $currentYear = Carbon::now()->year;

@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Admin;
 
 use App\Models\Game;
-use App\User;
 use Response;
 use Request;
 use App\Http\Controllers\Controller;
@@ -13,7 +12,7 @@ class GameController extends Controller
     {
         $gameUsers = GameUser::where([
             'user_id' => $this->user->id,
-            'role' => User::ROLE_ADMIN
+            'role' => GameUser::ROLE_ADMIN
         ])->get()->toArray();
         $gameIds = array_column($gameUsers, 'game_id');
 

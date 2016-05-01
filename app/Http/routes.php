@@ -57,6 +57,7 @@ Route::group([
             'challenge' => 'ChallengeController',
             'player' => 'PlayerController',
             'comment' => 'CommentController',
+            'submission' => 'SubmissionController'
         ]);
     });
 });

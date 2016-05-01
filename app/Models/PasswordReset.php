@@ -3,6 +3,4 @@
 
 class PasswordReset extends BaseModel
 {
-    public $timestamps = false;
-    protected $guarded = [];
 }

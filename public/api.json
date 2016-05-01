@@ -316,7 +316,7 @@
     },
     "runtime.taskHistory.list": {
       "method": "get",
-      "endpoint": "api/client/taskHistory/list/:gameId/:processId"
+      "endpoint": "api/client/taskHistory/list/:processId"
     },
     "runtime.taskHistory.detail": {
       "method": "get",
@@ -325,6 +325,10 @@
     "runtime.taskHistory.play": {
       "method": "post",
       "endpoint": "api/client/taskHistory/play/:taskHistoryId"
+    },
+    "runtime.submission.list": {
+      "method": "get",
+      "endpoint": "api/client/submission/list/:taskHistoryId"
     },
     "runtime.challenge.detail": {
       "method": "get",

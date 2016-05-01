@@ -10,6 +10,8 @@ class ProcessHistory extends BaseModel
     use PlaylyfeTrait;
     use RuntimeProcessHistoryTrait;
 
+    public $timestamps = true;
+
     public static function boot()
     {
         parent::boot();
@@ -21,7 +23,7 @@ class ProcessHistory extends BaseModel
 
 
         ProcessHistory::created(function (ProcessHistory $processHistory) {
-            // make sure triggers are synced
+            // sync initial triggers
             $processHistory->syncTriggers();
         });
     }
@@ -46,7 +48,7 @@ class ProcessHistory extends BaseModel
     {
         return $this->belongsTo('App\Models\Process');
     }
-    
+
     public function taskHistories()
     {
         return $this->hasMany('App\Models\TaskHistory');

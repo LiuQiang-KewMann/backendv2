@@ -20,9 +20,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
     use PlaylyfeTrait;
     use RuntimePlayerTrait;
 
-    const ROLE_DESIGNER = 'designer';
-    const ROLE_ADMIN = 'admin';
-    const ROLE_PLAYER = 'player';
+    public $timestamps = true;
 
     const STATUS_ACTIVE = 'active';
     const STATUS_UNREGISTERED = 'unregistered';

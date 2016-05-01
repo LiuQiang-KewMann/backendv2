@@ -112,6 +112,7 @@ class AuthController extends Controller
         $user = User::firstOrNew(['email' => $email]);
 
         if ($user->exists) {
+            // user found
             if ($user->status == User::STATUS_UNREGISTERED) {
                 // user found with status = unregistered
                 $user->update([
@@ -128,7 +129,8 @@ class AuthController extends Controller
                 return Response::json(['msg' => 'user_exist_already'], 406);
             }
         } else {
-            // user not found, then create new
+            // user not found
+            // then create new
             $user = User::create([
                 'email' => $email,
                 'password' => Hash::make($password),

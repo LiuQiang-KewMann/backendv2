@@ -1,9 +1,7 @@
 <?php namespace App\Traits;
 
-
 use App\Models\Task;
 use App\Models\TaskHistory;
-use Carbon\Carbon;
 
 trait RuntimeProcessHistoryTrait
 {
@@ -16,15 +14,15 @@ trait RuntimeProcessHistoryTrait
         $this->game_id = $this->gameUser->game_id;
         $this->user_id = $this->gameUser->user_id;
 
-        $remoteInstance = $this->conn()
+        $res = $this->conn()
             ->post('/runtime/processes', [
                 'player_id' => $this->user->playerId
             ], [
                 'definition' => $this->process->remote_id
             ]);
 
-        $this->remote_id = $remoteInstance['id'];
-        $this->json = json_encode($remoteInstance);
+        $this->remote_id = $res['id'];
+        $this->json = json_encode($res);
     }
 
 
@@ -50,37 +48,12 @@ trait RuntimeProcessHistoryTrait
             // if task does not exist then jump out and continue next iteration
             if (!$task->exists) continue;
 
-            TaskHistory::firstOrCreate([
+            $taskHistory = TaskHistory::firstOrCreate([
                 'process_history_id' => $this->id,
                 'task_id' => $task->id,
                 'game_user_id' => $this->game_user_id
-            ])->jsonUpdate($trigger);
-        }
-    }
-
-
-    /*
-     * check all uncompleted taskHistories, and update status = completed if expires
-     *
-     */
-    public function checkExpiration()
-    {
-        // find all uncompleted taskHistories
-        $taskHistories = TaskHistory::where('process_history_id', $this->id)
-            ->where('status', '<>', TaskHistory::STATUS_COMPLETED)
-            ->get();
-
-        foreach ($taskHistories as $taskHistory) {
-            // if corresponding task expiration is set already
-            if ($expiration = $taskHistory->task->jsonGet('expiration')) {
-                $expiration = Carbon::createFromFormat('Y-m-d H:i:s', $expiration);
-                $diffInSeconds = $expiration->diffInSeconds(null, false);
-
-                if ($diffInSeconds >= 0) {
-                    $taskHistory->update(['status' => TaskHistory::STATUS_COMPLETED]);
-                }
-
-            }
+            ]);
+            $taskHistory->jsonUpdate($trigger);
         }
     }
 }

@@ -6,6 +6,9 @@ class JsonSchema extends BaseModel
 {
     use JsonTrait;
 
+    /*
+     * return object
+     */
     static public function byModelAndScenario($model, $scenario)
     {
         return self::firstOrNew([
@@ -15,6 +18,11 @@ class JsonSchema extends BaseModel
     }
 
 
+    /*
+     * get all items, if parent exists, then include parent items as well
+     * parent is the same model while scenario is with no underscore
+     * e.g. 'edit' is parent of 'edit_radio'
+     */
     static public function items($model, $scenario)
     {
         $schema = self::byModelAndScenario($model, $scenario);
@@ -34,12 +42,18 @@ class JsonSchema extends BaseModel
     }
 
 
+    /*
+     * get all names
+     */
     static public function names($model, $scenario)
     {
         return array_column(self::items($model, $scenario), 'name');
     }
 
 
+    /*
+     * get default values (if defined)
+     */
     static public function defaultValues($model, $scenario = 'edit')
     {
         $items = self::items($model, $scenario);

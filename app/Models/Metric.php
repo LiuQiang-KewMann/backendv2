@@ -4,12 +4,18 @@ use App\Traits\DesignMetricTrait;
 use App\Traits\JsonTrait;
 use App\Traits\MetricTrait;
 use App\Traits\PlaylyfeTrait;
+use App\Traits\RuntimeMetricTrait;
 
 class Metric extends BaseModel
 {
     use JsonTrait;
     use PlaylyfeTrait;
     use DesignMetricTrait;
+    use RuntimeMetricTrait;
+    
+    const TYPE_POINT = 'point';
+    const TYPE_STATE = 'state';
+    const TYPE_SET = 'set';
 
     public function getVerbsAttribute()
     {

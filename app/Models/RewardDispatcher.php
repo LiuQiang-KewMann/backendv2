@@ -5,9 +5,13 @@ use App\Traits\JsonTrait;
 class RewardDispatcher extends BaseModel
 {
     use JsonTrait;
+    
+    const OPERATOR_FREE = 'free';
+    const OPERATOR_EQ = 'eq';
+    const OPERATOR_NE = 'ne';
 
     /*
-     * this function returns the full class for given string
+     * this function returns the full class
      */
     public static function getClass($class)
     {

@@ -1,11 +1,12 @@
 <?php namespace App\Models;
 
+use App\Traits\JsonTrait;
 use App\Traits\RuntimeSubmissionTrait;
-use Carbon\Carbon;
 
 class Submission extends BaseModel
 {
     use RuntimeSubmissionTrait;
+    use JsonTrait;
 
     public $timestamps = true;
 
@@ -17,11 +18,12 @@ class Submission extends BaseModel
             $submission->game_user_id = $submission->taskHistory->game_user_id;
             $submission->game_id = $submission->gameUser->game_id;
             $submission->user_id = $submission->gameUser->user_id;
-            $submission->label = $submission->component->jsonGet('label');
-            $submission->operator = $submission->component->jsonGet('operator', Component::OPERATOR_FREE);
-            $submission->solution = $submission->component->jsonGet('solution');
             $submission->loop_count = $submission->taskHistory->loop_count;
             $submission->attempt = $submission->taskHistory->attempt;
+            $submission->operator = $submission->component->jsonGet('operator', Component::OPERATOR_FREE);
+
+            // copy component json to submission
+            $submission->json = $submission->component->json;
 
             // do marking
             $submission->result = $submission->marking();
@@ -59,28 +61,29 @@ class Submission extends BaseModel
     }
 
 
-//    public function detail($mixedOnly = true, $toBeMerged = [])
-//    {
-//        $currentYear = Carbon::now()->year;
-//        $dateFormat = ($this->updated_at->year == $currentYear) ? 'j M H:i' : 'j M Y H:i';
-//
-//        $submission = array_merge([
-//            'id' => $this->id,
-//            'label' => $this->label,
-//            'attempt' => $this->attempt,
-//            'submission' => $this->submission,
-//            'result' => $this->result,
-//            'datetime' => $this->updated_at,
-//            'datetime_string' => $this->updated_at->format($dateFormat)
-//        ], [
-//            'mixed' => array_except($this->challenge->detail()['mixed'], ['solution'])
-//        ]);
-//
-//        // cast submission for toggle type
-//        if (in_array(array_get($submission, 'mixed.type'), ['toggle'])) {
-//            array_set($submission, 'submission', (bool)$this->submission);
-//        }
-//
-//        return $submission;
-//    }
+    public function detail($additionalAttributes = [])
+    {
+        $array = parent::detail([
+            'label',
+            'submission'
+        ]);
+
+        // if submission is boolean, cast string to PHP boolean type
+        if (array_get($array, 'submission') === 'true') {
+            array_set($array, 'submission', true);
+
+        } else if (array_get($array, 'submission') === 'false') {
+            array_set($array, 'submission', true);
+        }
+
+        return $array;
+    }
+
+
+    public function toArray()
+    {
+        return parent::brief([], [
+            'solution'
+        ]);
+    }
 }

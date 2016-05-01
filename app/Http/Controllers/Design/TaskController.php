@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Design;
 
 use App\Models\Challenge;
-use App\Models\ChallengeSet;
 use App\Models\JsonSchema;
 use App\Models\Process;
 use App\Models\Task;

@@ -5,7 +5,7 @@ use App\Models\Leaderboard;
 
 trait DesignLeaderboardTrait
 {
-    static public function syncList($game)
+    public static function syncList($game)
     {
         $headers = Leaderboard::connByGame($game)->get('/design/versions/latest/leaderboards');
 

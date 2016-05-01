@@ -6,6 +6,12 @@ use Storage;
 use File;
 use Image;
 
+/*
+ * this is just a helper class, not a eloquent model
+ * all functions are static
+ * 
+ * Todo: convert to Facade
+ */
 class FileManager
 {
     const FOLDER_APP = 'app';
@@ -13,6 +19,9 @@ class FileManager
     const FOLDER_LIB = 'lib';
 
 
+    /*
+     * generate a random sortable string path
+     */
     public static function generateRelPath($gameCode, $folder, $extension)
     {
         $fileName = Carbon::now()->timestamp . str_random(5);
@@ -22,6 +31,9 @@ class FileManager
     }
 
 
+    /*
+     * try to delete file by path or path array
+     */
     public static function delete($paths)
     {
         if (is_array($paths)) {
@@ -34,6 +46,10 @@ class FileManager
         }
     }
 
+    
+    /*
+     * delete one file by path
+     */
     protected static function deleteOne($path)
     {
         if (!$path) return;
@@ -47,6 +63,9 @@ class FileManager
     }
 
 
+    /*
+     * put one file to storage, return path
+     */
     public static function put($gameCode, $folder, $file)
     {
         $extension = self::getExtension($file);
@@ -83,6 +102,9 @@ class FileManager
     }
 
 
+    /*
+     * get extension by file mime type
+     */
     public static function getExtension($file)
     {
         $mimeType = File::mimeType($file);

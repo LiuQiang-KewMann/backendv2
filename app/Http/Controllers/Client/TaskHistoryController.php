@@ -2,54 +2,65 @@
 
 use App\Models\Challenge;
 use App\Models\GameUser;
+use App\Models\Process;
 use App\Models\ProcessHistory;
 use App\Models\TaskHistory;
 use App\Http\Controllers\Controller;
-use App\User;
 use Response;
 
 class TaskHistoryController extends Controller
 {
-    public function getList($gameId, $processId)
+    /*
+     * get list by a given process
+     */
+    public function getList($processId)
     {
+        $process = Process::find($processId);
+
         $gameUser = GameUser::firstOrNew([
-            'game_id' => $gameId,
+            'game_id' => $process->game_id,
             'user_id' => $this->user->id,
-            'role' => User::ROLE_PLAYER
+            'role' => GameUser::ROLE_PLAYER
         ]);
 
         $processHistory = ProcessHistory::firstOrCreate([
             'process_id' => $processId,
-            'game_user_id' => $gameUser->id,
+            'game_user_id' => $gameUser->id
         ]);
 
-        $processHistory->checkExpiration();
+        $taskHistoryArray = $processHistory->taskHistories->toArray();
 
-        $items = $processHistory->taskHistories;
+        $totalTaskNbr = sizeof($process->tasks);
+        $releasedTaskNbr = sizeof($taskHistoryArray);
 
-        $totalNbr = sizeof($processHistory->process->tasks);
-        $nbrOfReleased = sizeof($items);
-        $unreleased = [];
-        for ($i = $nbrOfReleased; $i < $totalNbr; $i++) {
-            array_push($unreleased, [
-                'status' => 'unreleased'
-            ]);
+        $unreleasedTaskArray = [];
+        for ($i = $releasedTaskNbr; $i < $totalTaskNbr; $i++) {
+            array_push($unreleasedTaskArray, ['status' => TaskHistory::STATUS_UNRELEASED]);
         }
 
-        $items = array_merge($items->toArray(), $unreleased);
+        $items = array_merge($taskHistoryArray, $unreleasedTaskArray);
 
         return ['items' => $items];
     }
 
 
-    public function getDetail($taskHistoryId)
+    /*
+     * get detail of a particular history
+     */
+    public function getDetail($id)
     {
-        $item = TaskHistory::find($taskHistoryId);
+        $taskHistory = TaskHistory::find($id);
 
-        return ['item' => $item->detail()];
+        // check expiration
+        $taskHistory->checkExpiration();
+
+        return ['item' => $taskHistory->detail()];
     }
 
 
+    /*
+     * play one task
+     */
     public function postPlay($id)
     {
         $taskHistory = TaskHistory::findOrNew($id);
@@ -59,17 +70,13 @@ class TaskHistoryController extends Controller
             return Response::json(['message' => 'taskHistory_not_found.'], 406);
         }
 
-        // if task completed already then return with error msg
+        // if taskHistory is completed
         if ($taskHistory->status == 'completed') {
             return Response::json(['message' => 'taskHistory_completed_already.'], 406);
         }
 
         // save submission
         $taskHistory->saveSubmissions();
-
-        // give out rewards
-        $receiverRewards = $taskHistory->giveOutRewards();
-        $myRewards = array_get($receiverRewards, $this->user->id);
 
         // default msg
         $msg = array_get([
@@ -79,8 +86,7 @@ class TaskHistoryController extends Controller
 
         // END
         return [
-            'msg' => $msg,
-            'rewards' => $myRewards
+            'msg' => $msg
         ];
     }
 }

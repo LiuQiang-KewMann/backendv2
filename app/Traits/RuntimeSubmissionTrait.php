@@ -4,33 +4,40 @@ use App\Models\Component;
 
 trait RuntimeSubmissionTrait
 {
+    /*
+     * mark a a particular submission and return result
+     */
     public function marking()
     {
+        $solution = $this->jsonGet('solution');
+        $operator = $this->operator;
+        $submission = $this->submission;
+
         // check submission with solution by operator
-        switch ($this->operator) {
+        switch ($operator) {
             case Component::OPERATOR_GT:
                 // greater than
-                $result = ($this->submission > $this->solution);
+                $result = ($submission > $solution);
                 break;
 
             case Component::OPERATOR_LT:
                 // less than
-                $result = ($this->submission < $this->solution);
+                $result = ($submission < $solution);
                 break;
 
             case Component::OPERATOR_NLT:
                 // no less than
-                $result = ($this->submission >= $this->solution);
+                $result = ($submission >= $solution);
                 break;
 
             case Component::OPERATOR_NGT:
                 // no greater than
-                $result = ($this->submission <= $this->solution);
+                $result = ($submission <= $solution);
                 break;
 
             case Component::OPERATOR_EQ:
                 // equal
-                $result = (strtoupper($this->submission) == strtoupper($this->solution));
+                $result = (strtolower($submission) == strtolower($solution));
                 break;
 
             default:
