@@ -1,46 +1,12 @@
 {
   "apis": {
-    "auth.sso.login": {
-      "server": "AuthServer",
-      "method": "post",
-      "endpoint": "sso-login"
-    },
-    "auth.account.detail": {
-      "server": "AuthServer",
+    "auth.forgotPassword": {
       "method": "get",
-      "endpoint": "detail"
+      "endpoint": "auth/password/:email"
     },
-    "auth.account.update": {
-      "server": "AuthServer",
+    "auth.resetPassword": {
       "method": "post",
-      "endpoint": "update",
-      "body": [
-        "first_name",
-        "last_name"
-      ]
-    },
-    "auth.password.update": {
-      "server": "AuthServer",
-      "method": "post",
-      "endpoint": "update-password",
-      "body": [
-        "old_password",
-        "new_password"
-      ]
-    },
-    "auth.password.requestReset": {
-      "server": "AuthServer",
-      "method": "get",
-      "endpoint": "password/:email"
-    },
-    "auth.password.reset": {
-      "server": "AuthServer",
-      "method": "post",
-      "endpoint": "password",
-      "body": [
-        "token",
-        "password"
-      ]
+      "endpoint": "auth/password"
     },
     "design.game.list": {
       "method": "get",
@@ -274,9 +240,9 @@
       "method": "get",
       "endpoint": "api/admin/team/detail/:teamId"
     },
-    "admin.team.syncList": {
-      "method": "get",
-      "endpoint": "api/admin/team/sync-list/:gameId"
+    "admin.team.update": {
+      "method": "post",
+      "endpoint": "api/admin/team/update/:teamId"
     },
     "admin.team.create": {
       "method": "post",
@@ -300,7 +266,19 @@
     },
     "admin.teamRole.removeMember": {
       "method": "post",
-      "endpoint": "api/admin/teamRole/remove-member/:teamId/:role"
+      "endpoint": "api/admin/teamRole/remove-member/:id"
+    },
+    "runtime.user.detail": {
+      "method": "get",
+      "endpoint": "api/client/user/detail"
+    },
+    "runtime.user.update": {
+      "method": "post",
+      "endpoint": "api/client/user/update"
+    },
+    "runtime.user.updatePassword": {
+      "method": "post",
+      "endpoint": "api/client/user/update-password"
     },
     "runtime.game.list": {
       "method": "get",
@@ -373,6 +351,10 @@
     "runtime.activity.list": {
       "method": "get",
       "endpoint": "api/client/task/all-activities/:gameId/:taskId"
+    },
+    "runtime.message.anyUnread": {
+      "method": "get",
+      "endpoint": "api/client/message/any-unread/:gameId"
     }
   }
 }

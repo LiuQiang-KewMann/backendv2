@@ -30,20 +30,21 @@ class TeamController extends Controller
     {
         $item = Team::find($id);
 
-        return ['item' => $item->detail()];
+        return [
+            'item' => $item->detail(),
+            'schema_edit' => JsonSchema::items('team', 'edit')
+        ];
     }
 
-
-    public function getSyncList($gameId)
+    public function postUpdate($id)
     {
-        $game = Game::find($gameId);
+        $item = Team::find($id);
 
-        Team::sync($game);
+        $updateArray = Request::only(JsonSchema::names('team', 'edit'));
 
-        return [
-            'items' => $game->teams,
-            'msg' => 'teams_synced'
-        ];
+        $item->jsonUpdate($updateArray);
+
+        return ['item' => $item->detail()];
     }
 
 

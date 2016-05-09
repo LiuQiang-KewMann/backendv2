@@ -2,6 +2,7 @@
 
 use App\Models\Challenge;
 use App\Models\GameUser;
+use App\Models\Metric;
 use App\Models\Process;
 use App\Models\ProcessHistory;
 use App\Models\TaskHistory;
@@ -84,9 +85,17 @@ class TaskHistoryController extends Controller
             Challenge::RESULT_FAIL => 'Fail',
         ], $taskHistory->result);
 
+        // get gameUser
+        $gameUser = $taskHistory->gameUser;
+        $changedScores = $gameUser->changedScores;
+        foreach ($changedScores as &$score) {
+            Metric::localizeScoreMetric($taskHistory->game_id, $score);
+        }
+
         // END
         return [
-            'msg' => $msg
+            'msg' => $msg,
+            'changed_scores' => $changedScores
         ];
     }
 }

@@ -42,10 +42,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             'game_id'
         ]);
 
-        $array = array_merge([
-            'image' => env('KGB_DEFAULT_IMAGE_USER'),
-            'image_thumb' => env('KGB_DEFAULT_IMAGE_USER')
-        ], $array);
+        array_set($array, 'image', env('KGB_DEFAULT_IMAGE_USER'));
+        array_set($array, 'image_thumb', env('KGB_DEFAULT_IMAGE_USER'));
 
         return $array;
     }

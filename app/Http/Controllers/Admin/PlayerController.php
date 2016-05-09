@@ -1,11 +1,6 @@
 <?php namespace App\Http\Controllers\Admin;
 
-use App\Events\PlayerAddedToGame;
-use App\Events\PlayerRemovedFromGame;
-use App\Events\PlayerReset;
 use App\Models\GameUser;
-use Illuminate\Support\Facades\Event;
-use JWTAuth;
 use Response;
 use Request;
 use App\User;
@@ -24,31 +19,27 @@ class PlayerController extends Controller
     }
 
 
-    public function getDetail($gameUserId)
+    public function getDetail($id)
     {
-        $gameUser = GameUser::find($gameUserId);
+        $gameUser = GameUser::findOrNew($id);
 
         if (!$gameUser->exists) {
             return Response::json(['msg' => 'player_not_in_game'], 406);
         }
 
-        return Response::json([
-            'item' => $gameUser->detail(),
-        ]);
+        return ['item' => $gameUser->detail()];
     }
 
 
-    public function getScores($gameUserId)
+    public function getScores($id)
     {
-        $gameUser = GameUser::find($gameUserId);
+        $gameUser = GameUser::findOrNew($id);
 
         if (!$gameUser->exists) {
             return Response::json(['msg' => 'player_not_in_game'], 406);
         }
 
-        return Response::json([
-            'item' => $gameUser->scores(),
-        ]);
+        return ['item' => $gameUser->scores()];
     }
 
 
@@ -89,42 +80,31 @@ class PlayerController extends Controller
     }
 
 
-    public function postRemove($gameUserId)
+    public function postRemove($id)
     {
-        $gameUser = GameUser::firstOrNew(['id' => $gameUserId]);
+        $gameUser = GameUser::findOrNew($id);
 
         if (!$gameUser->exists) {
             return Response::json(['msg' => 'player_not_in_game'], 406);
         }
-
-        $game = $gameUser->game;
-        $user = $gameUser->user;
 
         $gameUser->delete();
 
-        // fire event
-        Event::fire(new PlayerRemovedFromGame($user, $game));
 
-        return Response::json(['msg' => 'player_removed']);
+        return ['msg' => 'player_removed'];
     }
 
 
-    public function postReset($gameUserId)
+    public function postReset($id)
     {
-        $gameUser = GameUser::firstOrNew(['id' => $gameUserId]);
+        $gameUser = GameUser::findOrNew($id);
 
         if (!$gameUser->exists) {
             return Response::json(['msg' => 'player_not_in_game'], 406);
         }
 
-        $game = $gameUser->game;
-        $user = $gameUser->user;
-
         $gameUser->update(['json_remote' => '{}']);
 
-        // fire event
-        Event::fire(new PlayerReset($user, $game));
-
-        return Response::json(['msg' => 'player_reset']);
+        return ['msg' => 'player_reset'];
     }
 }

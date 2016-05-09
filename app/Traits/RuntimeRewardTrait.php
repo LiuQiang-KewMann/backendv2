@@ -66,10 +66,11 @@ trait RuntimeRewardTrait
                     'rewards' => $rewards
                 ]);
 
-                $gameUser->jsonUpdate($res);
+                $scores = array_get($res, 'scores', []);
+                $gameUser->updateScores($scores);
             }
         }
-
+        
         return $receiverRewards;
     }
 
@@ -77,7 +78,7 @@ trait RuntimeRewardTrait
     /*
      * return result based on comparison of left and right
      */
-    public static function getResult($left, $right, $operator)
+    private static function getResult($left, $right, $operator)
     {
         switch ($operator) {
             // equal
@@ -90,8 +91,13 @@ trait RuntimeRewardTrait
                 $result = ($left != $right);
                 break;
 
+            // not null
+            case RewardDispatcher::OPERATOR_NOTNULL:
+                $result = ($left != null);
+                break;
+
+            // default is free
             default:
-                // default is free
                 $result = true;
         }
 

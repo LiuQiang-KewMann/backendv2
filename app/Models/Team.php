@@ -65,7 +65,7 @@ class Team extends BaseModel
 
         foreach ($roles as $role) {
             array_push($rolesObject, [
-                'id' => $role,
+                'db_id' => $role,
                 'name' => $role
             ]);
         }

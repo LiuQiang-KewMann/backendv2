@@ -11,6 +11,30 @@ class GameUserTeamRole extends BaseModel
     use AdminGameUserTeamRoleTrait;
 
 
+    public function detail($additionalAttributes = [])
+    {
+        $array = parent::detail([
+            'role'
+        ]);
+
+        $array = array_merge($this->gameUser->detail(), $array);
+
+        return $array;
+    }
+
+
+    public function toArray()
+    {
+        return parent::brief([
+            'email',
+            'nickname',
+            'db_id',
+            'image',
+            'image_thumb'
+        ]);
+    }
+
+
     public static function boot()
     {
         parent::boot();

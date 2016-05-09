@@ -9,6 +9,7 @@ class RewardDispatcher extends BaseModel
     const OPERATOR_FREE = 'free';
     const OPERATOR_EQ = 'eq';
     const OPERATOR_NE = 'ne';
+    const OPERATOR_NOTNULL = 'nn';
 
     /*
      * this function returns the full class

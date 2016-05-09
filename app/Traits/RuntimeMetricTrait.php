@@ -19,6 +19,7 @@ trait RuntimeMetricTrait
         array_set($score, 'metric.description', $metric->jsonGet('description'));
         array_set($score, 'metric.image', $metric->jsonGet('image'));
         array_set($score, 'metric.image_thumb', $metric->jsonGet('image_thumb'));
+        array_set($score, 'metric.subheader', $metric->jsonGet('subheader'));
 
         $type = $metric->jsonGet('type');
         if ($type == Metric::TYPE_STATE) {

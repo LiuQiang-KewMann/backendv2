@@ -29,24 +29,29 @@ class TaskHistory extends BaseModel
 
             $taskHistory->loop_count = 1;
             $taskHistory->attempt = 1;
+            $taskHistory->remote_completed = 0;
             $taskHistory->status = $maxLoopCount ? TaskHistory::STATUS_LOOPING : TaskHistory::STATUS_NON_LOOPING;
             $taskHistory->game_id = $taskHistory->gameUser->game_id;
             $taskHistory->user_id = $taskHistory->gameUser->user_id;
         });
 
         TaskHistory::saving(function (TaskHistory $taskHistory) {
-            // get all changed attributes
-            $updatedAttributes = array_keys($taskHistory->getDirty());
+            // if status is completed or expired and remote_completed == 0
+            if (($taskHistory->status == self::STATUS_COMPLETED || $taskHistory->status == self::STATUS_EXPIRED) &&
+                $taskHistory->remote_completed == 0
+            ) {
+                // do remote completion
+                $taskHistory->doRemoteCompletion();
 
-            if (in_array('status', $updatedAttributes)) {
-                // if status changed
-                if (in_array($taskHistory->status, [TaskHistory::STATUS_COMPLETED, TaskHistory::STATUS_EXPIRED])) {
-                    // if status changed to completed or expired
-                    // do remote completion
-                    $taskHistory->doRemoteCompletion();
+                // and give out rewards
+                $rewards = $taskHistory->giveOutRewards();
 
-                    // and give out rewards
-                    $taskHistory->giveOutRewards();
+                // add rewards to json array if got any rewards
+                if (sizeof($rewards)) {
+                    $jsonArray = $taskHistory->jsonArray();
+                    array_set($jsonArray, 'rewards', $rewards);
+                    
+                    $taskHistory->json = json_encode($jsonArray);
                 }
             }
         });

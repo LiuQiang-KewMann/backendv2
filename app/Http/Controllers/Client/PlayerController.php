@@ -20,8 +20,8 @@ class PlayerController extends Controller
 
         return ['item' => $gameUser->profile];
     }
-    
-    
+
+
     public function getScores($gameId)
     {
         $gameUser = GameUser::firstOrNew([
@@ -54,7 +54,7 @@ class PlayerController extends Controller
             // delete existing image if any
             FileManager::delete($gameUser->jsonGet('image'));
             // upload new image
-            $imagePath = FileManager::put($game->code, FileManager::FOLDER_USER, $file);
+            $imagePath = FileManager::put($game->jsonGet('code'), FileManager::FOLDER_USER, $file);
             array_set($input, 'image', $imagePath);
 
 
@@ -68,6 +68,6 @@ class PlayerController extends Controller
 
         $gameUser->jsonUpdate($input);
 
-        return Response::json($gameUser->fresh()->detail());
+        return ['item' => $gameUser->profile];
     }
 }

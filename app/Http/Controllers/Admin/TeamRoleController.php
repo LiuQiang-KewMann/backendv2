@@ -20,7 +20,7 @@ class TeamRoleController extends Controller
 
         return [
             'items' => $team->roles,
-            'parent' => $team->detail()
+            'parent' => $team
         ];
     }
 
@@ -33,7 +33,7 @@ class TeamRoleController extends Controller
         ])->get();
 
         $item = [
-            'id' => $role,
+            'db_id' => $role,
             'name' => $role,
             'members' => $members
         ];
@@ -52,6 +52,7 @@ class TeamRoleController extends Controller
         $gameUser = GameUser::firstOrNew([
             'game_id' => $team->game->id,
             'user_id' => $user->id,
+            'role' => GameUser::ROLE_PLAYER
         ]);
 
         if (!$gameUser->exists) {
@@ -74,41 +75,21 @@ class TeamRoleController extends Controller
             'role' => $role
         ]);
 
-
-
         return [
             'item' => $gameUserTeamRole->detail()
         ];
     }
 
 
-    public function postRemoveMember($teamId, $role)
+    public function postRemoveMember($id)
     {
-        $email = Request::get('email');
-
-        $user = User::firstOrNew(['email' => $email]);
-        $team = Team::find($teamId);
-
-        $gameUser = GameUser::firstOrNew([
-            'game_id' => $team->game->id,
-            'user_id' => $user->id,
-        ]);
-
-        if (!$gameUser->exists) {
-            return Response::json(['msg' => 'player_not_in_game'], 406);
-        }
-
-        $gameUserRole = GameUserTeamRole::firstOrNew([
-            'game_user_id' => $gameUser->id,
-            'team_id' => $teamId,
-            'role' => $role
-        ]);
-
-        if (!$gameUserRole->exists) {
+        $gameUserTeamRole = GameUserTeamRole::findOrNew($id);
+        
+        if (!$gameUserTeamRole->exists) {
             return Response::json(['msg' => 'player_does_not_have_this_role'], 406);
         }
 
-        $gameUserRole->delete();
+        $gameUserTeamRole->delete();
 
         return Response::json(['msg' => 'member_removed']);
     }

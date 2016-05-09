@@ -146,6 +146,9 @@ trait RuntimeTaskHistoryTrait
      */
     public function doRemoteCompletion()
     {
+        // if remote completed already, stop and return
+        if ($this->remote_completed == 1) return;
+
         $res = $this->conn()->post('/runtime/processes/' . $this->processHistory->remote_id . '/play', [
             'player_id' => $this->user->playerId
         ], [
@@ -165,12 +168,16 @@ trait RuntimeTaskHistoryTrait
             // if task does not exist then jump out and continue next iteration
             if (!$task->exists) continue;
 
+            // for parallel gateway, some triggers might be created already
             TaskHistory::firstOrCreate([
                 'process_history_id' => $this->process_history_id,
                 'task_id' => $task->id,
                 'game_user_id' => $this->game_user_id
             ])->jsonUpdate($trigger);
         }
+
+        // set flag of remote_completed to be 1
+        $this->remote_completed = 1;
     }
 
 
@@ -179,8 +186,8 @@ trait RuntimeTaskHistoryTrait
      */
     public function checkExpiration()
     {
-        // check expiration only if status is not completed
-        if ($this->status == self::STATUS_COMPLETED) return;
+        // if status is completed or expired, stop and return
+        if ($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_EXPIRED) return;
 
         // if task got expiration json attribute
         if ($expiration = $this->task->jsonGet('expiration')) {
@@ -194,6 +201,7 @@ trait RuntimeTaskHistoryTrait
 
             } catch (\InvalidArgumentException $e) {
                 // do nothing ...
+                // exception might be due to invalid expiration date
             }
         }
     }

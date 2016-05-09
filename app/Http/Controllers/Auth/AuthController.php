@@ -1,19 +1,12 @@
 <?php namespace App\Http\Controllers\Auth;
 
-use App\Events\PasswordResetTokenCreated;
 use App\Models\PasswordReset;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Event;
-use Validator;
-use Auth;
 use JWTAuth;
 use Response;
 use Request;
-use Redirect;
 use Hash;
-use Log;
 use App\User;
-use App\Models\OneTimeKey;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -147,54 +140,6 @@ class AuthController extends Controller
     }
 
 
-    public function getDetail()
-    {
-        return ['item' => $this->user->detail()];
-    }
-
-
-    public function postUpdate()
-    {
-        $inputArray = Request::only(['first_name', 'last_name']);
-
-        $this->user->jsonUpdate($inputArray);
-
-        return ['item' => $this->user->detail()];
-    }
-
-
-    public function postUpdatePassword()
-    {
-        $user = JWTAuth::parseToken()->toUser();
-
-        $oldPassword = Request::get('old_password');
-        $newPassword = Request::get('new_password');
-
-        if (!$oldPassword || !$newPassword) {
-            return Response::json([
-                'msg' => 'invalid_input'
-            ], 406);
-        }
-
-        $userCurrentHashedPassword = $user->password;
-        $userNewHashedPassword = Hash::make($newPassword);
-
-
-        if (!Hash::check($oldPassword, $userCurrentHashedPassword)) {
-            return Response::json([
-                'msg' => 'wrong_old_passsword'
-            ], 406);
-        }
-
-        $user->update(['password' => $userNewHashedPassword]);
-
-        return [
-            'item' => $user->fresh()->detail(false),
-            'msg' => 'password_updated'
-        ];
-    }
-
-
     public function getPassword($email)
     {
         // looking for this user
@@ -205,24 +150,20 @@ class AuthController extends Controller
             PasswordReset::where('email', $email)->delete();
 
             // 2. create token - 10-digit-random-string
-            $passwordReset = PasswordReset::create([
+            PasswordReset::create([
                 'email' => $email,
                 'token' => str_random(25),
                 'created_at' => Carbon::now()
             ]);
 
-            // 3. fire PasswordResetToken created event
-            // Planned: use queue for this event
-            Event::fire(new PasswordResetTokenCreated($passwordReset));
-
             return ['msg' => 'reset_email_sent'];
 
         } else {
-
             // uer does not not exist
             return Response::json(['msg' => 'account_not_exists'], 406);
         }
     }
+
 
     public function postPassword()
     {
@@ -237,13 +178,10 @@ class AuthController extends Controller
             $user = User::firstOrNew(['email' => $passwordReset->email]);
 
             // 2. update password
-            $user->update([
-                'password' => Hash::make($password)
-            ]);
+            $user->update(['password' => Hash::make($password)]);
 
             // 3. delete token
             PasswordReset::where('token', $token)->delete();
-
 
             return [
                 'token' => JWTAuth::fromUser($user),
