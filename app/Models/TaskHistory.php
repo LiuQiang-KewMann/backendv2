@@ -50,23 +50,11 @@ class TaskHistory extends BaseModel
                 if (sizeof($rewards)) {
                     $jsonArray = $taskHistory->jsonArray();
                     array_set($jsonArray, 'rewards', $rewards);
-                    
+
                     $taskHistory->json = json_encode($jsonArray);
                 }
             }
         });
-    }
-
-
-    public function toArray()
-    {
-        return parent::brief([
-            'title',
-            'status',
-            'image',
-            'image_thumb',
-            'db_id'
-        ]);
     }
 
 
@@ -78,10 +66,25 @@ class TaskHistory extends BaseModel
             'title',
             'image',
             'image_thumb',
-            'challenge_db_id'
+            'challenge_db_id',
+            'social_disabled'
         ]));
 
         return $array;
+    }
+
+
+    public function toArray()
+    {
+        return parent::brief([
+            'title',
+            'status',
+            'image',
+            'image_thumb',
+            'db_id',
+            'social_count',
+            'social_disabled'
+        ]);
     }
 
 
@@ -119,5 +122,23 @@ class TaskHistory extends BaseModel
             'belongs_to_class' => Task::class,
             'belongs_to_id' => $this->task->id
         ])->orderBy('reward_dispatcher_id')->get();
+    }
+
+
+    public function getCommentsAttribute()
+    {
+        return Comment::where([
+            'task_history_id' => $this->id,
+            'type' => Comment::TYPE_COMMENT
+        ])->orderBy('updated_at', 'DESC')->get();
+    }
+
+
+    public function getLikesAttribute()
+    {
+        return Comment::where([
+            'task_history_id' => $this->id,
+            'type' => Comment::TYPE_LIKE
+        ])->orderBy('updated_at', 'DESC')->get();
     }
 }

@@ -68,7 +68,8 @@ class GameUser extends BaseModel
             'image_thumb',
             'first_name',
             'last_name',
-            'nickname'
+            'nickname',
+            'db_id'
         ]);
     }
 

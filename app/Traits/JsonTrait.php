@@ -20,6 +20,16 @@ trait JsonTrait
     {
         return array_get($this->jsonArray(), $key, $default);
     }
+    
+    
+    public function jsonSet($key, $value)
+    {
+        $jsonArray = $this->jsonArray();
+        
+        array_set($jsonArray, $key, $value);
+        
+        $this->jsonUpdate($jsonArray);
+    }
 
 
     public function jsonUpdate($array)

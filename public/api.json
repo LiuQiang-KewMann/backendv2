@@ -324,21 +324,25 @@
       "method": "post",
       "endpoint": "api/client/player/profile/:gameId"
     },
-    "runtime.comment.likeList": {
+    "runtime.comment.likes": {
       "method": "get",
-      "endpoint": "api/client/comment/list/like/:taskHistoryId"
+      "endpoint": "api/client/comment/likes/:taskHistoryId"
+    },
+    "runtime.comment.comments": {
+      "method": "get",
+      "endpoint": "api/client/comment/comments/:taskHistoryId"
+    },
+    "runtime.comment.liked": {
+      "method": "get",
+      "endpoint": "api/client/comment/liked/:taskHistoryId"
     },
     "runtime.comment.like": {
-      "method": "get",
+      "method": "post",
       "endpoint": "api/client/comment/like/:taskHistoryId"
     },
     "runtime.comment.unlike": {
-      "method": "get",
+      "method": "post",
       "endpoint": "api/client/comment/unlike/:taskHistoryId"
-    },
-    "runtime.comment.commentList": {
-      "method": "get",
-      "endpoint": "api/client/comment/list/comment/:taskHistoryId"
     },
     "runtime.comment.post": {
       "method": "post",
@@ -346,7 +350,7 @@
     },
     "runtime.comment.delete": {
       "method": "post",
-      "endpoint": "api/client/comment/delete/:commentId"
+      "endpoint": "api/client/comment/delete/:id"
     },
     "runtime.activity.list": {
       "method": "get",

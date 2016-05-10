@@ -1,8 +1,8 @@
 <?php namespace App\Http\Controllers\Client;
 
 use App\Models\Comment;
+use App\Models\GameUser;
 use App\Models\TaskHistory;
-use JWTAuth;
 use Response;
 use Request;
 use App\Http\Controllers\Controller;
@@ -10,96 +10,101 @@ use App\Http\Controllers\Controller;
 class CommentController extends Controller
 {
     // like
-    public function getLike($taskHistoryId)
+    public function postLike($taskHistoryId)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        $taskHistory = TaskHistory::findOrNew($taskHistoryId);
+        $taskHistory = TaskHistory::find($taskHistoryId);
 
-        Comment::like($taskHistory, $user);
+        $gameUser = GameUser::firstOrNew([
+            'game_id' => $taskHistory->game_id,
+            'user_id' => $this->user->id,
+            'role' => GameUser::ROLE_PLAYER,
+        ]);
 
-        return $this->getList(Comment::TYPE_LIKE, $taskHistoryId);
+        Comment::like($taskHistory, $gameUser);
+
+        return ['items' => $taskHistory->likes];
     }
 
 
     // unlike
-    public function getUnlike($taskHistoryId)
+    public function postUnlike($taskHistoryId)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        $taskHistory = TaskHistory::findOrNew($taskHistoryId);
+        $taskHistory = TaskHistory::find($taskHistoryId);
 
-        Comment::unlike($taskHistory, $user);
+        $gameUser = GameUser::firstOrNew([
+            'game_id' => $taskHistory->game_id,
+            'user_id' => $this->user->id,
+            'role' => GameUser::ROLE_PLAYER,
+        ]);
 
-        return $this->getList(Comment::TYPE_LIKE, $taskHistoryId);
+        Comment::unlike($taskHistory, $gameUser);
+
+        return ['items' => $taskHistory->likes];
     }
 
 
     // post comment
     public function postPost($taskHistoryId)
     {
-        $user = JWTAuth::parseToken()->toUser();
         $taskHistory = TaskHistory::findOrNew($taskHistoryId);
         $comment = Request::get('comment');
 
-        Comment::post($taskHistory, $user, $comment);
+        $gameUser = GameUser::firstOrNew([
+            'game_id' => $taskHistory->game_id,
+            'user_id' => $this->user->id,
+            'role' => GameUser::ROLE_PLAYER,
+        ]);
 
-        return $this->getList(Comment::TYPE_COMMENT, $taskHistoryId);
+        Comment::post($taskHistory, $gameUser, $comment);
+
+        return ['items' => $taskHistory->comments];
     }
 
 
     // delete comment
-    public function postDelete($commentId)
+    public function postDelete($id)
     {
-        $comment = Comment::findOrNew($commentId);
-        $taskHistoryId = $comment->task_history_id;
+        $comment = Comment::find($id);
+        $comment->delete();
 
-        Comment::deleteComment($comment);
-
-        return $this->getList(Comment::TYPE_COMMENT, $taskHistoryId);
+        return [
+            'msg' => 'comment_deleted',
+            'items' => $comment->taskHistory->comments
+        ];
     }
 
 
-    // list
-    public function getList($type, $taskHistoryId)
+    // likes
+    public function getLikes($taskHistoryId)
     {
-        if (!in_array($type, [Comment::TYPE_COMMENT, Comment::TYPE_LIKE])) {
-            return Response::json(['msg' => 'Invalid type'], 406);
-        }
+        $taskHistory = TaskHistory::find($taskHistoryId);
 
-        $user = JWTAuth::parseToken()->toUser();
-        $taskHistory = TaskHistory::findOrNew($taskHistoryId);
-        $commentList = Comment::listAll($taskHistory, $type);
-
-        $arrayToBeMerged = [];
-
-        if ($type == Comment::TYPE_LIKE) {
-            array_set($arrayToBeMerged, 'is_liked', Comment::isLiked($taskHistory, $user));
-        }
-
-        $comments = [];
-        foreach ($commentList as $comment) {
-            array_push($comments, $comment->outline());
-        }
-
-        return Response::json(array_merge($arrayToBeMerged, [
-            'count' => sizeof($comments),
-            'current_actor_id' => $user->id,
-            'items' => $comments,
-        ]));
+        return ['items' => $taskHistory->likes];
     }
 
 
-    // is liked by user
-    public function getIsLiked($taskHistoryId)
+    // comments
+    public function getComments($taskHistoryId)
     {
-        $user = JWTAuth::parseToken()->toUser();
-        $taskHistory = TaskHistory::findOrNew($taskHistoryId);
+        $taskHistory = TaskHistory::find($taskHistoryId);
 
-        $isLike = Comment::isLiked($taskHistory, $user);
+        return ['items' => $taskHistory->comments];
 
-        return Response::json([
-            'actor_id' => $user->id,
-            'task_history_id' => $taskHistory->id,
-            'value' => $isLike
-        ]);
+    }
+
+
+    // is liked by user already or not
+    public function getLiked($taskHistoryId)
+    {
+        $taskHistory = TaskHistory::find($taskHistoryId);
+
+        $result = Comment::where([
+            'task_history_id' => $taskHistoryId,
+            'type' => Comment::TYPE_LIKE,
+            'actor_game_id' => $taskHistory->game_id,
+            'actor_user_id' => $this->user->id
+        ])->exists();
+
+        return ['result' => $result];
     }
 }

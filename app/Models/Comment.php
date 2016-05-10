@@ -9,23 +9,70 @@ class Comment extends BaseModel
     use JsonTrait;
     use RuntimeCommentTrait;
 
+    public $timestamps = true;
+
     const TYPE_LIKE = 'like';
     const TYPE_COMMENT = 'comment';
 
-    public function outline($toBeMerged = [], $arrayOnly = [])
+    public static function boot()
+    {
+        parent::boot();
+
+        Comment::creating(function (Comment $comment) {
+            // fill in additional attributes when creating
+            $comment->actor_game_id = $comment->actor->game_id;
+            $comment->actor_user_id = $comment->actor->user_id;
+        });
+
+
+        Comment::created(function (Comment $comment) {
+            // calculate count for this taskHistory
+            $count = Comment::where([
+                'task_history_id' => $comment->task_history_id,
+                'type' => $comment->type
+            ])->count();
+
+            // taskHistory json for social is social_count[like/comment]
+            $comment->taskHistory->jsonSet('social_count.' . $comment->type, $count);
+        });
+
+
+        Comment::deleted(function (Comment $comment) {
+            // calculate count for this taskHistory
+            $count = Comment::where([
+                'task_history_id' => $comment->task_history_id,
+                'type' => $comment->type
+            ])->count();
+
+            // taskHistory json for social is social_count[like/comment]
+            $comment->taskHistory->jsonSet('social_count.' . $comment->type, $count);
+        });
+    }
+
+    public function detail($additionalAttributes = [])
     {
         $currentYear = Carbon::now()->year;
-        $dateFormat = ($this->updated_at->year == $currentYear)? 'j M H:i': 'j M Y H:i';
+        $dateFormat = ($this->updated_at->year == $currentYear) ? 'j M H:i' : 'j M Y H:i';
 
-        $toBeMerged = array_merge([
-            'actor_id' => $this->actor_id,
-            'actor_name' => $this->actor->jsonGet('first_name'),
+        $array = parent::detail($additionalAttributes);
+
+        $array = array_merge($array, [
+            'actor' => $this->actor->toArray(),
             'date' => $this->updated_at->format($dateFormat)
-        ], $toBeMerged);
+        ]);
 
-        $outline = parent::outline($toBeMerged, $arrayOnly);
+        return $array;
+    }
 
-        return $outline;
+
+    public function toArray()
+    {
+        return parent::brief([
+            'actor',
+            'date',
+            'comment',
+            'db_id'
+        ]);
     }
 
 
@@ -37,6 +84,6 @@ class Comment extends BaseModel
 
     public function actor()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\GameUser', 'actor_game_user_id');
     }
 }
